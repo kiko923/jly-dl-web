@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title data-react-helmet="true">下载页</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://static.yzcdn.net/npm/vue@2.6.14/dist/vue.js"></script>
+
+    <!--<script src="https://static.yzcdn.net/ajax/libs/jquery/3.7.1/jquery.js"></script>-->
+    <script src="https://static.yzcdn.net/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://static.yzcdn.net/layui/layui.js"></script>
+    <!-- 引入 layui.css -->
+    <link href="https://static.yzcdn.net/layui/css/layui.css" rel="stylesheet">
+    <!--<link rel="stylesheet" href="https://static.yzcdn.net/ajax/libs/layer/3.5.1/theme/default/layer.css" id="layuicss-layer">-->
+    <style>
+        .footer {
+          position: absolute;
+          bottom: 0;
+          width: 100%;
+          text-align: center;
+          padding: 10px;
+          background-color: #fff;
+        }
+        .footer a {
+            text-decoration: none;
+            color: black;
+        }
+    </style>
+
+
+</head>
+
+<body>
+    <script src="https://static.yzcdn.net/npm/vue@2.6.14/dist/vue.js"></script>
+
+    <center>
+        <br>
+        <br>
+        <br>
+        <br>
+        <img src="app.png" alt="加载中">
+        <br>
+        <br>
+        <h1>喵桃GO</h1>
+        <br>
+
+        <div id="loading" style="display: block;">
+            <p>更新时间：获取中</p>
+            <p>文件大小：获取中</p>
+        </div>
+
+        <div id="app" style="display: none;">
+            <p>更新时间：{{responseData.update_dt}}</p>
+            <p>文件大小：{{responseData.app_size}}</p>
+
+
+    </center>
+    </div>
+    <br>
+    <script>
+        layer.alert('注：为防他人转卖 授权码仅下方获取 被骗后果自负');
+        var currentURL = window.location.href;
+        // var responseData = {
+        //     update_dt: '获取中',
+        //     app_size: '获取中'
+        //   };
+        
+          var ii = layer.load();
+        
+          var xhr = new XMLHttpRequest();
+          xhr.open("GET", "https://jly-api.599923.xyz/jly/config", true);
+        
+          xhr.onload = function () {
+              //layer.msg('云端数据获取成功', {time:800})
+              layer.alert('注：为防他人转卖 授权码仅下方获取 被骗后果自负');
+            if (xhr.status === 200) {
+                //layer.msg('云端数据获取成功', {time:800})
+                 layer.close(ii);
+              var responseData = JSON.parse(xhr.responseText);
+              document.getElementById("loading").style.display = "none";
+              document.getElementById("app").style.display = "block";
+              // 数据加载完成后更新 Vue 实例中的 responseData
+              new Vue({
+                el: '#app', // Vue 实例挂载的元素
+                data: {
+                  responseData: responseData.data // 将获取到的数据传递给 Vue 实例
+                }
+                // 在 HTML 中使用模板语法渲染数据
+              });
+             
+              //layer.msg('云端数据获取成功', {time:800})
+              
+            } else {
+              console.error('请求失败：', xhr.statusText);
+            }
+          };
+          xhr.send();
+    </script>
+
+    <script>
+        function sendAuthorizationCode(card) {
+            //layer.load();
+          $.ajax({
+            url: "https://jly-api.599923.xyz/jly/login",
+            type: "POST",
+            dataType: "json",
+            data: {
+              card: card,
+            },
+            success: function(data) {
+              if (data.code === 200) {
+                    user = data.user;
+                    point = data.point;
+                    //tokenid = data.data.result.tokenid;
+                    console.log(user);
+                    console.log(point);
+                    //console.log(tokenid);
+                    layer.closeAll(); // 关闭所有类型的层
+                    
+                    
+                    layer.msg('剩余安装次数:'+ point,{icon: 1,time:800});
+              }else{
+                   // layer.closeAll(); // 关闭所有类型的层
+                    layer.msg(data.data,{icon: 2,time:800});
+              }
+            }
+          });
+        }
+        var card ='';
+                        layer.prompt({
+                            title:'请输入授权码[微:cake98717]', value: '', btn: ['验证','获取授权码'], closeBtn: 0,
+                            btn2: function (index, layero) {
+                                    var url = 'https://shop.qlvw.cn/shop/JLY520APP';
+                                    window.open(url); // 在新的页面中打开URL
+                                
+                                 return false
+                            }
+                        }, function (value, index, elem) {
+                                    card = value; // 使用 let 关键字来声明变量而不是 const
+                                    sendAuthorizationCode(card);
+                                                                            });
+        
+        
+        
+        
+        
+        function handleClick() {
+            //tokenid = tokenid;
+             //var card = card;
+            layer.load();
+            $.ajax({
+            url: "https://jly-api.599923.xyz/jly/deductpoints",
+            type: "POST",
+            dataType: "json",
+            data: {
+                card: card
+            },
+            success: function(data) {
+              if (data.code ===200) {
+                    //ret_info = data.data.result.ret_info;
+                    //console.log(ret_info);
+                    layer.closeAll(); // 关闭所有类型的层
+                    layer.msg('心跳获取成功 开始安装',{icon: 1,time:800});
+                    window.location.href=data.downurl;
+                    
+                    
+              }else{
+                    layer.closeAll(); // 关闭所有类型的层
+                    layer.msg(data.data,{icon: 2,time:800});
+              }
+            }
+          });
+            
+            
+            //
+            
+            
+            
+            
+        //layer.msg('已开始安装 请稍等')
+        
+        
+        }
+    </script>
+
+    <button onclick="handleClick()" id="button" type="button" class="layui-btn layui-btn-fluid">在线安装</button>
+
+
+
+    <br>
+    <br>
+
+    <center>
+        <b>
+    <p style="color:red">微:cake98717</p>
+    </b>
+        <img style="max-width:60%;overflow:hidden;" src="https://img.yzcdn.net/2024/01/25/wx-qr.jpg" alt="">
+    </center>
+    </div>
+    </div>
+    <div>
+        <!--<div class="footer">-->
+        <center><span>Copyright © <script>
+                    document.write(new Date().getFullYear());
+                  </script>永至网络科技工作室 All Rights Reserved. </span></center>
+
+    </div>
+
+    </div>
+
+    </div>
+
+</body>
+
+</html>
